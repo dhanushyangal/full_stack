@@ -39,24 +39,24 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen bg-secondary/30">
+    <div className="min-h-screen bg-gradient-to-b from-secondary/50 to-background">
       <Navbar />
-      <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center px-4 py-8">
-        <div className="w-full max-w-sm">
-          <div className="rounded-lg border border-border bg-background p-6 shadow-sm">
-            <div className="mb-5 text-center">
-              <h1 className="text-xl font-semibold text-foreground">Create Account</h1>
-              <p className="mt-1 text-sm text-muted-foreground">Fill in your details to get started</p>
+      <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center px-4 py-10">
+        <div className="w-full max-w-md">
+          <div className="rounded-xl border border-border bg-background p-6 shadow-lg sm:p-8">
+            <div className="mb-6 text-center">
+              <h1 className="text-2xl font-bold tracking-tight text-foreground">Create Account</h1>
+              <p className="mt-2 text-sm text-muted-foreground">Fill in your details to get started</p>
             </div>
 
             {success && (
-              <div className="mb-4 rounded-md bg-success/10 border border-success/20 px-3 py-2 text-sm text-success">
+              <div className="mb-4 rounded-lg border border-success/20 bg-success/10 px-4 py-3 text-sm font-medium text-success" role="status">
                 ✓ Account created! Redirecting to login...
               </div>
             )}
 
             {error && (
-              <div className="mb-4 rounded-md bg-destructive/10 border border-destructive/20 px-3 py-2 text-sm text-destructive">
+              <div className="mb-4 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive" role="alert">
                 {error}
               </div>
             )}
@@ -111,10 +111,10 @@ export default function Signup() {
               </Button>
             </form>
 
-            <p className="mt-4 text-center text-sm text-muted-foreground">
+            <p className="mt-6 text-center text-sm text-muted-foreground">
               Already have an account?{' '}
-              <Link to="/login" className="font-medium text-primary hover:underline">
-                Sign In <ArrowRight className="inline h-3 w-3" />
+              <Link to="/login" className="font-semibold text-primary underline-offset-4 hover:underline focus-visible:rounded focus-visible:outline focus-visible:ring-2 focus-visible:ring-ring">
+                Sign In <ArrowRight className="inline h-3.5 w-3.5" />
               </Link>
             </p>
           </div>

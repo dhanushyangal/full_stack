@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Plus, Trash2, CheckCircle, Circle, Calendar, Upload, Send, Edit3, X, Check, Clock, AlertTriangle, FileText } from 'lucide-react';
+import { Plus, Trash2, CheckCircle, Circle, Calendar, Upload, Send, Edit3, X, Check, Clock, AlertTriangle, FileText, ListTodo } from 'lucide-react';
 import { getData, saveData, getDeadlineInfo } from '@/lib/store';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 
 export default function StudentDashboard() {
   const location = useLocation();
@@ -115,15 +118,13 @@ export default function StudentDashboard() {
     return 'Excellent work – almost completed!';
   };
 
-  const inputCls = "w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-ring focus:ring-1 focus:ring-ring";
-
   return (
-    <div>
+    <div className="space-y-6">
       {(section === '' || section === 'dashboard') && (
-        <div>
-          <h1 className="mb-5 text-xl font-semibold text-foreground">Student Dashboard</h1>
+        <div className="space-y-6">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Student Dashboard</h1>
 
-          <div className="mb-4 rounded-lg border border-border bg-background p-4">
+          <div className="rounded-xl border border-border bg-background p-5 shadow-sm">
             <div className="flex items-center gap-3 mb-2 flex-wrap">
               <h2 className="font-medium text-foreground">{project?.title}</h2>
               <DeadlineBadge />
@@ -133,30 +134,38 @@ export default function StudentDashboard() {
               <span className="text-muted-foreground">Progress</span>
               <span className="font-medium text-foreground">{currentProgress}%</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-secondary">
-              <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${currentProgress}%` }} />
+            <div className="h-2.5 overflow-hidden rounded-full bg-secondary">
+              <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${currentProgress}%` }} role="progressbar" aria-label="Project progress" aria-valuenow={currentProgress} aria-valuemin={0} aria-valuemax={100} />
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">{getProgressMessage(currentProgress)}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{getProgressMessage(currentProgress)}</p>
           </div>
 
-          <div className="rounded-lg border border-border bg-background p-4">
-            <h3 className="mb-3 text-sm font-medium text-foreground">Recent Tasks</h3>
-            <div className="space-y-1.5">
-              {group?.tasks.slice(0, 5).map(t => (
-                <div key={t.id} className="flex items-center gap-2.5 rounded-md border border-border px-3 py-2">
-                  {t.completed ? <CheckCircle className="h-4 w-4 text-success" /> : <Circle className="h-4 w-4 text-muted-foreground" />}
-                  <span className={`text-sm flex-1 ${t.completed ? 'text-muted-foreground line-through' : 'text-foreground'}`}>{t.title}</span>
-                </div>
-              ))}
-            </div>
+          <div className="rounded-xl border border-border bg-background p-5 shadow-sm">
+            <h3 className="mb-4 text-base font-semibold text-foreground">Recent Tasks</h3>
+            {group?.tasks.length ? (
+              <div className="space-y-2">
+                {group.tasks.slice(0, 5).map(t => (
+                  <div key={t.id} className="flex items-center gap-3 rounded-lg border border-border bg-secondary/30 px-3 py-2.5">
+                    {t.completed ? <CheckCircle className="h-4 w-4 shrink-0 text-success" /> : <Circle className="h-4 w-4 shrink-0 text-muted-foreground" />}
+                    <span className={`text-sm flex-1 ${t.completed ? 'text-muted-foreground line-through' : 'text-foreground'}`}>{t.title}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-8 text-center">
+                <ListTodo className="mb-2 h-10 w-10 text-muted-foreground" />
+                <p className="text-sm font-medium text-foreground">No tasks yet</p>
+                <p className="text-xs text-muted-foreground">Tasks will appear when your mentor assigns them.</p>
+              </div>
+            )}
           </div>
         </div>
       )}
 
       {section === 'project' && (
-        <div>
-          <h1 className="mb-5 text-xl font-semibold text-foreground">My Project</h1>
-          <div className="rounded-lg border border-border bg-background p-5">
+        <div className="space-y-6">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">My Project</h1>
+          <div className="rounded-xl border border-border bg-background p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               <h2 className="text-lg font-semibold text-foreground">{project?.title}</h2>
               <DeadlineBadge />
@@ -177,90 +186,99 @@ export default function StudentDashboard() {
       )}
 
       {section === 'tasks' && (
-        <div>
-          <h1 className="mb-5 text-xl font-semibold text-foreground">Task Management</h1>
+        <div className="space-y-6">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Task Management</h1>
 
-          <div className="mb-4 flex gap-2">
-            <input value={newTask} onChange={e => setNewTask(e.target.value)} onKeyDown={e => e.key === 'Enter' && addTask()} placeholder="Add a new task..."
-              className={inputCls + ' flex-1'} />
-            <button onClick={() => addTask()} className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+          <div className="flex gap-2">
+            <Input value={newTask} onChange={e => setNewTask(e.target.value)} onKeyDown={e => e.key === 'Enter' && addTask()} placeholder="Add a new task..." className="flex-1" />
+            <Button type="button" onClick={() => addTask()}>
               <Plus className="h-4 w-4" /> Add
-            </button>
+            </Button>
           </div>
 
-          <div className="mb-4 rounded-lg border border-border bg-background p-4">
+          <div className="rounded-xl border border-border bg-background p-5 shadow-sm">
             <div className="mb-1 flex justify-between text-xs">
               <span className="text-muted-foreground">Completion ({group?.tasks.filter(t => t.completed).length}/{group?.tasks.length})</span>
               <span className="font-medium text-foreground">{currentProgress}%</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-secondary">
-              <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${currentProgress}%` }} />
+            <div className="h-2.5 overflow-hidden rounded-full bg-secondary">
+              <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${currentProgress}%` }} role="progressbar" aria-label="Task completion" aria-valuenow={currentProgress} aria-valuemin={0} aria-valuemax={100} />
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">{getProgressMessage(currentProgress)}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{getProgressMessage(currentProgress)}</p>
           </div>
 
-          <div className="space-y-1.5">
-            {group?.tasks.map(t => (
-              <div key={t.id} className="flex items-center justify-between rounded-lg border border-border bg-background px-4 py-2.5">
-                {editingTaskId === t.id ? (
-                  <div className="flex flex-1 items-center gap-2">
-                    <input value={editingTaskTitle} onChange={e => setEditingTaskTitle(e.target.value)} onKeyDown={e => e.key === 'Enter' && saveEditTask()}
-                      className={inputCls + ' flex-1'} autoFocus />
-                    <button onClick={saveEditTask} className="text-success hover:text-success/80"><Check className="h-4 w-4" /></button>
-                    <button onClick={() => setEditingTaskId(null)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
-                  </div>
-                ) : (
-                  <>
-                    <button onClick={() => toggleTask(t.id)} className="flex items-center gap-2.5 flex-1 text-left">
-                      {t.completed ? <CheckCircle className="h-4 w-4 text-success" /> : <Circle className="h-4 w-4 text-muted-foreground" />}
-                      <span className={`text-sm ${t.completed ? 'text-muted-foreground line-through' : 'text-foreground'}`}>{t.title}</span>
-                    </button>
-                    <div className="flex items-center gap-0.5">
-                      <button onClick={() => startEditTask(t.id, t.title)} className="rounded-md p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/5">
-                        <Edit3 className="h-3.5 w-3.5" />
-                      </button>
-                      <button onClick={() => removeTask(t.id)} className="rounded-md p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/5">
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+          {group?.tasks.length ? (
+            <div className="space-y-2">
+              {group.tasks.map(t => (
+                <div key={t.id} className="flex items-center justify-between gap-2 rounded-xl border border-border bg-background px-4 py-3 shadow-sm">
+                  {editingTaskId === t.id ? (
+                    <div className="flex flex-1 items-center gap-2">
+                      <Input value={editingTaskTitle} onChange={e => setEditingTaskTitle(e.target.value)} onKeyDown={e => e.key === 'Enter' && saveEditTask()} className="flex-1" autoFocus />
+                      <Button type="button" variant="ghost" size="icon" onClick={saveEditTask} className="text-success hover:text-success"><Check className="h-4 w-4" /></Button>
+                      <Button type="button" variant="ghost" size="icon" onClick={() => setEditingTaskId(null)}><X className="h-4 w-4" /></Button>
                     </div>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
+                  ) : (
+                    <>
+                      <button type="button" onClick={() => toggleTask(t.id)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                        {t.completed ? <CheckCircle className="h-4 w-4 shrink-0 text-success" /> : <Circle className="h-4 w-4 shrink-0 text-muted-foreground" />}
+                        <span className={`text-sm truncate ${t.completed ? 'text-muted-foreground line-through' : 'text-foreground'}`}>{t.title}</span>
+                      </button>
+                      <div className="flex shrink-0 items-center gap-0.5">
+                        <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => startEditTask(t.id, t.title)} aria-label="Edit task">
+                          <Edit3 className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => removeTask(t.id)} aria-label="Delete task">
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-12 text-center">
+              <ListTodo className="mb-3 h-12 w-12 text-muted-foreground" />
+              <p className="text-sm font-semibold text-foreground">No tasks yet</p>
+              <p className="mt-1 text-xs text-muted-foreground">Add a task above to get started.</p>
+            </div>
+          )}
         </div>
       )}
 
       {section === 'submit' && (
-        <div>
-          <h1 className="mb-5 text-xl font-semibold text-foreground">Submit Work</h1>
-          <form onSubmit={handleSubmit} className="max-w-lg rounded-lg border border-border bg-background p-5">
-            <div className="mb-4 flex items-center gap-2">
-              <Upload className="h-4 w-4 text-primary" />
-              <h2 className="text-sm font-semibold text-foreground">New Submission</h2>
+        <div className="space-y-6">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Submit Work</h1>
+          <form onSubmit={handleSubmit} className="max-w-lg rounded-xl border border-border bg-background p-6 shadow-sm">
+            <div className="mb-5 flex items-center gap-2">
+              <Upload className="h-5 w-5 text-primary" />
+              <h2 className="text-base font-semibold text-foreground">New Submission</h2>
             </div>
-            <div className="mb-3">
-              <label className="mb-1 block text-sm font-medium text-foreground">Submission Title</label>
-              <input value={submitTitle} onChange={e => setSubmitTitle(e.target.value)} placeholder="e.g., Progress Report 3" className={inputCls} />
-            </div>
-            <div className="mb-4">
-              <label className="mb-1 block text-sm font-medium text-foreground">File Name (simulated)</label>
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-muted-foreground" />
-                <input value={submitFile} onChange={e => setSubmitFile(e.target.value)} placeholder="e.g., report_v3.pdf" className={inputCls + ' flex-1'} />
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="submit-title">Submission Title</Label>
+                <Input id="submit-title" value={submitTitle} onChange={e => setSubmitTitle(e.target.value)} placeholder="e.g., Progress Report 3" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="submit-file">File Name (simulated)</Label>
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  <Input id="submit-file" value={submitFile} onChange={e => setSubmitFile(e.target.value)} placeholder="e.g., report_v3.pdf" className="flex-1" />
+                </div>
               </div>
             </div>
-            <button type="submit" className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+            <Button type="submit" className="mt-4">
               <Send className="h-4 w-4" /> Submit
-            </button>
-            {submitted && <p className="mt-3 text-sm text-success font-medium">✓ Submission sent successfully!</p>}
+            </Button>
+            {submitted && <p className="mt-4 rounded-lg bg-success/10 px-4 py-2 text-sm font-medium text-success">✓ Submission sent successfully!</p>}
           </form>
 
-          <div className="mt-6">
-            <h2 className="mb-3 text-sm font-semibold text-foreground">Past Submissions</h2>
-            <div className="space-y-1.5">
-              {group?.submissions.map(s => (
-                <div key={s.id} className="flex items-center justify-between rounded-lg border border-border bg-background px-4 py-2.5">
+          <div>
+            <h2 className="mb-3 text-base font-semibold text-foreground">Past Submissions</h2>
+            {group?.submissions.length ? (
+            <div className="space-y-2">
+              {group.submissions.map(s => (
+                <div key={s.id} className="flex items-center justify-between rounded-xl border border-border bg-background px-4 py-3 shadow-sm">
                   <div>
                     <p className="text-sm font-medium text-foreground">{s.title}</p>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -278,6 +296,13 @@ export default function StudentDashboard() {
                 </div>
               ))}
             </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-8 text-center">
+                <FileText className="mb-2 h-10 w-10 text-muted-foreground" />
+                <p className="text-sm font-medium text-foreground">No submissions yet</p>
+                <p className="text-xs text-muted-foreground">Submit your first piece of work above.</p>
+              </div>
+            )}
           </div>
         </div>
       )}

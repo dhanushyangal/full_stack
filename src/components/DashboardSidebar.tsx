@@ -37,22 +37,22 @@ export default function DashboardSidebar({ role, open, onClose }: Props) {
     <>
       {open && <div className="fixed inset-0 z-40 bg-foreground/20 md:hidden" onClick={onClose} aria-hidden />}
 
-      <aside className={`fixed left-0 top-14 z-50 flex h-[calc(100vh-3.5rem)] w-60 flex-col border-r border-border bg-background transition-transform duration-200 md:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex items-center justify-between p-4 md:hidden">
+      <aside className={`fixed left-0 top-14 z-50 flex h-[calc(100vh-3.5rem)] w-60 flex-col border-r border-border bg-background shadow-lg transition-transform duration-200 md:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`} aria-label="Dashboard navigation">
+        <div className="flex items-center justify-between border-b border-border p-4 md:hidden">
           <div className="flex items-center gap-2">
             <GraduationCap className="h-4 w-4 text-primary" />
-            <span className="text-sm font-semibold text-foreground">EduVista</span>
+            <span className="text-sm font-bold text-foreground">EduVista</span>
           </div>
-          <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground" aria-label="Close sidebar"><X className="h-4 w-4" /></button>
+          <button type="button" onClick={onClose} className="rounded-lg p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label="Close sidebar"><X className="h-4 w-4" /></button>
         </div>
 
         <div className="px-4 py-3">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {role === 'mentor' ? 'Mentor Panel' : 'Student Panel'}
           </p>
         </div>
 
-        <nav className="flex-1 space-y-0.5 px-3">
+        <nav className="flex-1 space-y-0.5 px-3" aria-label="Dashboard sections">
           {links.map(({ icon: Icon, label, hash }) => {
             const active = currentHash === hash;
             return (
@@ -60,14 +60,13 @@ export default function DashboardSidebar({ role, open, onClose }: Props) {
                 key={hash}
                 to={`/dashboard#${hash}`}
                 onClick={onClose}
-                className={`flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                   active
                     ? 'bg-primary/10 text-primary'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                 }`}
               >
-                {active && <div className="absolute left-0 h-5 w-0.5 rounded-full bg-primary" />}
-                <Icon className="h-4 w-4" />
+                <Icon className="h-4 w-4 shrink-0" />
                 {label}
               </Link>
             );
@@ -76,8 +75,9 @@ export default function DashboardSidebar({ role, open, onClose }: Props) {
 
         <div className="border-t border-border p-3">
           <button
+            type="button"
             onClick={handleLogout}
-            className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-destructive hover:bg-destructive/5"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/5 hover:text-destructive"
           >
             <LogOut className="h-4 w-4" />
             Logout

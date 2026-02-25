@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Plus, Users, FileCheck, BarChart3, Calendar, Trash2, Edit3, X, Check, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Plus, Users, FileCheck, BarChart3, Calendar, Trash2, Edit3, X, Check, Clock, AlertTriangle, CheckCircle, FolderPlus } from 'lucide-react';
 import { getData, saveData, deleteProject, getDeadlineInfo, ALL_GROUPS, type Project } from '@/lib/store';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function MentorDashboard() {
   const location = useLocation();
@@ -87,51 +91,49 @@ export default function MentorDashboard() {
     );
   };
 
-  const inputCls = "w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-ring focus:ring-1 focus:ring-ring";
-
   return (
-    <div>
+    <div className="space-y-6">
       {(section === '' || section === 'dashboard') && (
-        <div>
-          <h1 className="mb-5 text-xl font-semibold text-foreground">Mentor Dashboard</h1>
+        <div className="space-y-6">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Mentor Dashboard</h1>
 
-          <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
               { icon: BarChart3, label: 'Total Projects', value: data.projects.length },
               { icon: Users, label: 'Total Groups', value: totalGroups },
               { icon: FileCheck, label: 'Pending Submissions', value: pendingSubmissions },
               { icon: CheckCircle, label: 'Tasks Completed', value: `${completedTasks}/${totalTasks}` },
-            ].map((s, i) => (
-              <div key={i} className="rounded-lg border border-border bg-background p-4">
-                <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">
-                  <s.icon className="h-4 w-4" />
+            ].map((s) => (
+              <div key={s.label} className="rounded-xl border border-border bg-background p-5 shadow-sm transition-shadow hover:shadow-md">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <s.icon className="h-5 w-5" />
                 </div>
-                <p className="text-2xl font-semibold text-foreground">{s.value}</p>
-                <p className="text-xs text-muted-foreground">{s.label}</p>
+                <p className="text-2xl font-bold text-foreground">{s.value}</p>
+                <p className="text-sm text-muted-foreground">{s.label}</p>
               </div>
             ))}
           </div>
 
           {/* Progress Overview */}
-          <div className="mb-6 rounded-lg border border-border bg-background p-5">
-            <h2 className="mb-4 text-sm font-semibold text-foreground">Progress Overview</h2>
-            <div className="mb-3">
-              <div className="mb-1 flex justify-between text-xs">
+          <div className="rounded-xl border border-border bg-background p-5 shadow-sm">
+            <h2 className="mb-4 text-base font-semibold text-foreground">Progress Overview</h2>
+            <div className="mb-4">
+              <div className="mb-1 flex justify-between text-sm">
                 <span className="text-muted-foreground">Overall Average</span>
-                <span className="font-medium text-foreground">{avgProgress}%</span>
+                <span className="font-semibold text-foreground">{avgProgress}%</span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-secondary">
-                <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${avgProgress}%` }} />
+              <div className="h-2.5 overflow-hidden rounded-full bg-secondary">
+                <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${avgProgress}%` }} role="progressbar" aria-label="Overall progress" aria-valuenow={avgProgress} aria-valuemin={0} aria-valuemax={100} />
               </div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {data.projects[0]?.groups.map(g => (
                 <div key={g.id}>
-                  <div className="mb-1 flex justify-between text-xs">
+                  <div className="mb-1 flex justify-between text-sm">
                     <span className="text-muted-foreground">{g.name}</span>
                     <span className="font-medium text-foreground">{g.progress}%</span>
                   </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
+                  <div className="h-2 overflow-hidden rounded-full bg-secondary">
                     <div className="h-full rounded-full bg-primary/70 transition-all duration-500" style={{ width: `${g.progress}%` }} />
                   </div>
                 </div>
@@ -142,100 +144,108 @@ export default function MentorDashboard() {
       )}
 
       {section === 'create' && (
-        <div>
-          <h1 className="mb-5 text-xl font-semibold text-foreground">Create & Manage Projects</h1>
+        <div className="space-y-6">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Create & Manage Projects</h1>
 
-          <form onSubmit={createProject} className="mb-6 rounded-lg border border-border bg-background p-5">
-            <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
-              <Plus className="h-4 w-4 text-primary" /> New Project
+          <form onSubmit={createProject} className="rounded-xl border border-border bg-background p-6 shadow-sm">
+            <h2 className="mb-5 flex items-center gap-2 text-base font-semibold text-foreground">
+              <Plus className="h-5 w-5 text-primary" /> New Project
             </h2>
-            <div className="grid gap-3 md:grid-cols-2">
-              <div>
-                <label className="mb-1 block text-sm font-medium text-foreground">Project Title</label>
-                <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Enter project title" className={inputCls} />
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="proj-title">Project Title</Label>
+                <Input id="proj-title" value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Enter project title" />
               </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium text-foreground">Deadline</label>
-                <input type="date" value={newDeadline} onChange={e => setNewDeadline(e.target.value)} className={inputCls} />
+              <div className="space-y-2">
+                <Label htmlFor="proj-deadline">Deadline</Label>
+                <Input id="proj-deadline" type="date" value={newDeadline} onChange={e => setNewDeadline(e.target.value)} />
               </div>
             </div>
-            <div className="mt-3">
-              <label className="mb-1 block text-sm font-medium text-foreground">Description</label>
-              <textarea value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="Project description..." rows={3} className={inputCls + ' resize-none'} />
+            <div className="mt-4 space-y-2">
+              <Label htmlFor="proj-desc">Description</Label>
+              <Textarea id="proj-desc" value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="Project description..." rows={3} className="resize-none" />
             </div>
-            <div className="mt-3">
-              <label className="mb-1.5 block text-sm font-medium text-foreground">Assign Groups</label>
+            <div className="mt-4 space-y-2">
+              <Label>Assign Groups</Label>
               <div className="flex flex-wrap gap-2">
                 {ALL_GROUPS.map(g => (
-                  <button key={g.id} type="button" onClick={() => toggleGroupSelection(g.id)}
-                    className={`rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
-                      selectedGroups.includes(g.id) ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:bg-secondary'
-                    }`}>
+                  <Button key={g.id} type="button" variant="outline" size="sm" onClick={() => toggleGroupSelection(g.id)}
+                    className={selectedGroups.includes(g.id) ? 'border-primary bg-primary/10 text-primary' : ''}>
                     {g.name}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
-            <button type="submit" className="mt-4 inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+            <Button type="submit" className="mt-5">
               <Plus className="h-4 w-4" /> Create Project
-            </button>
+            </Button>
           </form>
 
-          <h2 className="mb-3 text-sm font-semibold text-foreground">All Projects ({data.projects.length})</h2>
-          <div className="space-y-2">
-            {data.projects.map(p => (
-              <div key={p.id} className="rounded-lg border border-border bg-background p-4">
-                {editingId === p.id ? (
-                  <div className="space-y-2">
-                    <input value={editTitle} onChange={e => setEditTitle(e.target.value)} className={inputCls} />
-                    <textarea value={editDesc} onChange={e => setEditDesc(e.target.value)} rows={2} className={inputCls + ' resize-none'} />
-                    <input type="date" value={editDeadline} onChange={e => setEditDeadline(e.target.value)} className={inputCls} />
-                    <div className="flex gap-2">
-                      <button onClick={saveEdit} className="inline-flex items-center gap-1 rounded-md bg-success/10 px-3 py-1.5 text-xs font-medium text-success hover:bg-success/20">
-                        <Check className="h-3 w-3" /> Save
-                      </button>
-                      <button onClick={() => setEditingId(null)} className="inline-flex items-center gap-1 rounded-md bg-secondary px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground">
-                        <X className="h-3 w-3" /> Cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium text-foreground">{p.title}</p>
-                        <DeadlineCountdown deadline={p.deadline} />
-                      </div>
-                      {p.description && <p className="text-sm text-muted-foreground mb-1.5">{p.description}</p>}
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {p.deadline}</span>
-                        <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {p.groups.length} groups</span>
+          <div>
+            <h2 className="mb-4 text-base font-semibold text-foreground">All Projects ({data.projects.length})</h2>
+            {data.projects.length ? (
+            <div className="space-y-3">
+              {data.projects.map(p => (
+                <div key={p.id} className="rounded-xl border border-border bg-background p-5 shadow-sm">
+                  {editingId === p.id ? (
+                    <div className="space-y-4">
+                      <Input value={editTitle} onChange={e => setEditTitle(e.target.value)} placeholder="Project title" />
+                      <Textarea value={editDesc} onChange={e => setEditDesc(e.target.value)} rows={2} className="resize-none" />
+                      <Input type="date" value={editDeadline} onChange={e => setEditDeadline(e.target.value)} />
+                      <div className="flex gap-2">
+                        <Button type="button" variant="default" size="sm" onClick={saveEdit} className="bg-success hover:bg-success/90">
+                          <Check className="h-3 w-3" /> Save
+                        </Button>
+                        <Button type="button" variant="outline" size="sm" onClick={() => setEditingId(null)}>
+                          <X className="h-3 w-3" /> Cancel
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <button onClick={() => startEdit(p)} className="rounded-md p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/5">
-                        <Edit3 className="h-4 w-4" />
-                      </button>
-                      <button onClick={() => handleDelete(p.id)} className="rounded-md p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/5">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                  ) : (
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                          <p className="font-semibold text-foreground">{p.title}</p>
+                          <DeadlineCountdown deadline={p.deadline} />
+                        </div>
+                        {p.description && <p className="text-sm text-muted-foreground mb-2">{p.description}</p>}
+                        <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /> {p.deadline}</span>
+                          <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" /> {p.groups.length} groups</span>
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-1">
+                        <Button type="button" variant="ghost" size="icon" className="text-muted-foreground" onClick={() => startEdit(p)} aria-label="Edit project">
+                          <Edit3 className="h-4 w-4" />
+                        </Button>
+                        <Button type="button" variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" onClick={() => handleDelete(p.id)} aria-label="Delete project">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
+              ))}
+            </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-12 text-center">
+                <FolderPlus className="mb-3 h-12 w-12 text-muted-foreground" />
+                <p className="text-sm font-semibold text-foreground">No projects yet</p>
+                <p className="mt-1 text-xs text-muted-foreground">Create your first project using the form above.</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       )}
 
       {section === 'groups' && (
-        <div>
-          <h1 className="mb-5 text-xl font-semibold text-foreground">Student Groups</h1>
-          <div className="space-y-3">
+        <div className="space-y-6">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Student Groups</h1>
+          <div className="space-y-4">
             {data.projects.flatMap(p => p.groups.map(g => ({ ...g, projectTitle: p.title, deadline: p.deadline }))).map(g => {
               const taskRatio = g.tasks.length ? `${g.tasks.filter(t => t.completed).length}/${g.tasks.length}` : '0/0';
               return (
-                <div key={g.id} className="rounded-lg border border-border bg-background p-4">
+                <div key={g.id} className="rounded-xl border border-border bg-background p-5 shadow-sm">
                   <div className="mb-2 flex items-center justify-between">
                     <div>
                       <h3 className="font-medium text-foreground">{g.name}</h3>
@@ -261,28 +271,28 @@ export default function MentorDashboard() {
       )}
 
       {section === 'submissions' && (
-        <div>
-          <h1 className="mb-5 text-xl font-semibold text-foreground">Submissions</h1>
-          <div className="overflow-x-auto rounded-lg border border-border bg-background">
+        <div className="space-y-6">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Submissions</h1>
+          <div className="overflow-x-auto rounded-xl border border-border bg-background shadow-sm">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-secondary/50">
-                  <th className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground">Group</th>
-                  <th className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground">Submission</th>
-                  <th className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground">File</th>
-                  <th className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground">Date</th>
-                  <th className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Group</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Submission</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">File</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Date</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {data.projects.flatMap(p => p.groups.flatMap(g =>
                   g.submissions.map(s => (
-                    <tr key={s.id} className="border-b border-border last:border-0 hover:bg-secondary/30">
-                      <td className="px-4 py-2.5 text-foreground">{g.name}</td>
-                      <td className="px-4 py-2.5 text-foreground">{s.title}</td>
-                      <td className="px-4 py-2.5 text-xs text-muted-foreground">{s.fileName || '—'}</td>
-                      <td className="px-4 py-2.5 text-muted-foreground">{s.date}</td>
-                      <td className="px-4 py-2.5">
+                    <tr key={s.id} className="border-b border-border last:border-0 transition-colors hover:bg-secondary/30">
+                      <td className="px-4 py-3 font-medium text-foreground">{g.name}</td>
+                      <td className="px-4 py-3 text-foreground">{s.title}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{s.fileName || '—'}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{s.date}</td>
+                      <td className="px-4 py-3">
                         <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${
                           s.status === 'approved' ? 'bg-success/10 text-success' :
                           s.status === 'reviewed' ? 'bg-warning/10 text-warning' :
