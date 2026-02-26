@@ -51,7 +51,7 @@ export default function Navbar() {
           )}
         </div>
 
-        <button type="button" onClick={() => setMobileOpen(!mobileOpen)} className="rounded-lg p-2 text-foreground transition-colors hover:bg-secondary md:hidden" aria-label={mobileOpen ? 'Close menu' : 'Open menu'} aria-expanded={mobileOpen}>
+        <button type="button" onClick={() => setMobileOpen(!mobileOpen)} className="rounded-lg p-2 text-foreground transition-colors hover:bg-secondary md:hidden" aria-label={mobileOpen ? 'Close menu' : 'Open menu'} aria-expanded={mobileOpen ? "true" : "false"}>
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>

@@ -129,3 +129,32 @@ export function getDeadlineInfo(deadline: string): { daysLeft: number; urgency: 
   if (daysLeft <= 21) return { daysLeft, urgency: 'warning' };
   return { daysLeft, urgency: 'safe' };
 }
+
+/** Find the project and group that a student (by name) belongs to. Returns first match. */
+export function getProjectAndGroupForStudent(studentName: string): { project: Project; group: Group } | null {
+  const data = getData();
+  for (const project of data.projects) {
+    const group = project.groups.find(g => g.members.some(m => m.toLowerCase() === studentName.toLowerCase()));
+    if (group) return { project, group };
+  }
+  return null;
+}
+
+/** Update submission status (mentor action). Persists to storage and returns updated data. */
+export function updateSubmissionStatus(
+  projectId: string,
+  groupId: string,
+  submissionId: string,
+  status: Submission['status']
+): { projects: Project[] } {
+  const data = getData();
+  const project = data.projects.find(p => p.id === projectId);
+  if (!project) return data;
+  const group = project.groups.find(g => g.id === groupId);
+  if (!group) return data;
+  const submission = group.submissions.find(s => s.id === submissionId);
+  if (!submission) return data;
+  submission.status = status;
+  saveData(data);
+  return data;
+}
